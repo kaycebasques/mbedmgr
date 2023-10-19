@@ -1,1 +1,1 @@
-from .sitemap_scraper import SitemapScraper
+from .embeddings_manager import EmbeddingsManager
