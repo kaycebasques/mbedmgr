@@ -1,1 +1,1 @@
-from .sitemap_crawler import SitemapCrawler
+from .sitemap_scraper import SitemapScraper

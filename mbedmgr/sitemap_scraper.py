@@ -29,7 +29,7 @@ import lxml
 
 
 
-class SitemapCrawler:
+class SitemapScraper:
     def __init__(self, sitemap_url):
         response = requests.get(sitemap_url)
         # If you try to use `response.text` here `lxml` throws the following error:
