@@ -6,6 +6,7 @@ setuptools.setup(
     packages=['embeddingsmanager'],
     install_requires=[
         'beautifulsoup4==4.12.2',
+        'lxml==4.9.3',
         'requests==2.31.0'
     ]
 )
