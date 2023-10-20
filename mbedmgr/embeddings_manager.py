@@ -1,5 +1,5 @@
 from .sitemap_scraper import SitemapScraper
-from .html_scraper import HtmlScraper
+from .url_scraper import UrlScraper
 
 class EmbeddingsManager:
     def __init__(self):
@@ -9,5 +9,6 @@ class EmbeddingsManager:
         urls = scraper.scrape()
         return urls
     def scrape_urls(self, urls):
-        scraper = HtmlScraper()
+        scraper = UrlScraper()
         scraper.scrape_urls(urls)
+        return scraper.data

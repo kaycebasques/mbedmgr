@@ -3,19 +3,29 @@ import bs4
 import threading
 import lxml
 
-class HtmlScraper:
+class UrlScraper:
     def __init__(self):
         self._data = {}
-    def _scrape_html(self, url):
+
+    def scrape_url(self, url):
         response = requests.get(url)
-        self._data[url] = response.text
+        if not response.ok:
+            return
+        self._data[url] = {
+            'text': response.text,
+            'type': response.headers.get('Content-Type')
+        }
+
     def scrape_urls(self, urls):
         threads = []
         for index, url in enumerate(urls):
             thread_id = f't{index}'
-            thread = threading.Thread(target=self._scrape_html, name=thread_id, args=(url,))
+            thread = threading.Thread(target=self.scrape_url, name=thread_id, args=(url,))
             threads.append(thread)
             thread.start()
         for thread in threads:
             thread.join()
-        print(self._data)
+
+    @property
+    def data(self):
+        return self._data
