@@ -1,9 +1,16 @@
+import sys
+
 from .website_source import WebsiteSource
 
 class EmbeddingsManager:
     def __init__(self):
-        print('Hello, EmbeddingsManager!')
+        self._website_sources = {}
+
+    def add_website_source(self, source_id: str = None) -> WebsiteSource:
         website_source = WebsiteSource()
+        self._website_sources[source_id] = website_source
+        return website_source
+
         # self._sitemaps = []
     # def add_sitemap(self, url):
     #     self._sitemaps.append(url)
