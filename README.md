@@ -1,5 +1,7 @@
 # mbedmgr
 
+v0.0.1 doesn't work yet. I'm just reserving the package name...
+
 ## Deploy to PyPI
 
 ```
