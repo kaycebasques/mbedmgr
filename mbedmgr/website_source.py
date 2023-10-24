@@ -13,10 +13,14 @@ class WebpageData(typing.TypedDict):
 class WebsiteSource:
     def __init__(self):
         self._data = {}
+        self._minify = None
 
     @property
     def data(self) -> typing.Dict[str, WebpageData]:
         return self._data
+
+    def set_preprocess_handler(self, handler: typing.Callable) -> None:
+        self._preprocess = handler
 
     def get_pages_from_sitemap(self, sitemap_url: str) -> None:
         response = requests.get(sitemap_url)
@@ -30,17 +34,20 @@ class WebsiteSource:
         threads = []
         for url in self._data:
             thread_id = str(uuid.uuid4())
-            thread = threading.Thread(target=self._scrape_page, name=thread_id, args=(url,))
+            thread = threading.Thread(target=self._scrape, name=thread_id, args=(url,))
             threads.append(thread)
             thread.start()
         for thread in threads:
             thread.join()
 
-    def minify_pages(self) -> None:
+    def preprocess_pages(self) -> None:
+        if self._preprocess is None:
+            print('preprocess_pages() has no effect because a handler was not set.')
+            return
         threads = []
         for url in self._data:
             thread_id = str(uuid.uuid4())
-            thread = threading.Thread(target=self._minify_page, name=thread_id, args=(url,))
+            thread = threading.Thread(target=self._preprocess, name=thread_id, args=(url,self._data,))
             threads.append(thread)
             thread.start()
         for thread in threads:
@@ -50,22 +57,7 @@ class WebsiteSource:
         with open('data.json', 'w') as f:
             json.dump(self._data, f, indent=4)
 
-    # TODO: Turn this into a caller-defined function.
-    def _minify_page(self, url: str) -> None:
-        soup = bs4.BeautifulSoup(self._data[url]['text'], 'html.parser')
-        main = soup.select('div.main')
-        if len(main) != 1:
-            print('ERROR: Expected page to have exactly 1 div.main element')
-        main = main[0]
-        for script in main.find_all('script'):
-            script.decompose()
-        for style in main.find_all('style'):
-            style.decompose()
-        for link in main.find_all('link'):
-            link.decompose()
-        self._data[url]['text'] = str(main)
-
-    def _scrape_page(self, url: str) -> None:
+    def _scrape(self, url: str) -> None:
         response = requests.get(url)
         if not response.ok:
             return
