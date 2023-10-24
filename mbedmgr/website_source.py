@@ -19,9 +19,6 @@ class WebsiteSource:
     def data(self) -> typing.Dict[str, WebpageData]:
         return self._data
 
-    def set_preprocess_handler(self, handler: typing.Callable) -> None:
-        self._preprocess = handler
-
     def get_pages_from_sitemap(self, sitemap_url: str) -> None:
         response = requests.get(sitemap_url)
         root = lxml.etree.fromstring(response.content)
@@ -30,7 +27,7 @@ class WebsiteSource:
         for url in urls:
             self._data[url] = {}
 
-    def scrape_pages(self) -> None:
+    def scrape(self) -> None:
         threads = []
         for url in self._data:
             thread_id = str(uuid.uuid4())
@@ -40,9 +37,9 @@ class WebsiteSource:
         for thread in threads:
             thread.join()
 
-    def preprocess_pages(self) -> None:
+    def preprocess(self) -> None:
         if self._preprocess is None:
-            print('preprocess_pages() has no effect because a handler was not set.')
+            print('preprocess() has no effect because a handler was not set.')
             return
         threads = []
         for url in self._data:
@@ -52,6 +49,14 @@ class WebsiteSource:
             thread.start()
         for thread in threads:
             thread.join()
+
+    @property
+    def preprocess_handler(self) -> typing.Callable:
+        return self._preprocess
+
+    @preprocess_handler.setter
+    def preprocess_handler(self, handler: typing.Callable) -> None:
+        self._preprocess = handler
 
     def save(self) -> None:
         with open('data.json', 'w') as f:
