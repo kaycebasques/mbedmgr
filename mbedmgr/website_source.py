@@ -13,7 +13,8 @@ class WebpageData(typing.TypedDict):
 class WebsiteSource:
     def __init__(self):
         self._data = {}
-        self._minify = None
+        self._preprocess = None
+        self._segment = None
 
     @property
     def data(self) -> typing.Dict[str, WebpageData]:
@@ -44,7 +45,22 @@ class WebsiteSource:
         threads = []
         for url in self._data:
             thread_id = str(uuid.uuid4())
+            # TODO: It's not necessary to give them access to the whole data object.
             thread = threading.Thread(target=self._preprocess, name=thread_id, args=(url,self._data,))
+            threads.append(thread)
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+    def segment(self) -> None:
+        if self._segment is None:
+            print('segment() has no effect because a handler was not set.')
+            return
+        threads = []
+        for url in self._data:
+            thread_id = str(uuid.uuid4())
+            # TODO: It's not necessary to give them access to the whole data object.
+            thread = threading.Thread(target=self._segment, name=thread_id, args=(url,self._data,))
             threads.append(thread)
             thread.start()
         for thread in threads:
@@ -57,6 +73,14 @@ class WebsiteSource:
     @preprocess_handler.setter
     def preprocess_handler(self, handler: typing.Callable) -> None:
         self._preprocess = handler
+
+    @property
+    def segment_handler(self) -> typing.Callable:
+        return self._preprocess
+
+    @segment_handler.setter
+    def segment_handler(self, handler: typing.Callable) -> None:
+        self._segment = handler
 
     def save(self) -> None:
         with open('data.json', 'w') as f:
