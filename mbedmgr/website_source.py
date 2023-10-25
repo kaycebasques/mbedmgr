@@ -8,13 +8,21 @@ import time
 import json
 
 class WebpageData(typing.TypedDict):
+    """TODO"""
+
     text: str
 
 class WebsiteSource:
+    """TODO"""
+
     def __init__(self):
         self._data = {}
-        self._preprocess = None
-        self._segment = None
+
+    def _preprocess(self) -> None:
+        pass
+
+    def _segment(self) -> None:
+        pass
 
     @property
     def data(self) -> typing.Dict[str, WebpageData]:
@@ -37,6 +45,15 @@ class WebsiteSource:
             thread.start()
         for thread in threads:
             thread.join()
+
+    def _scrape(self, url: str) -> None:
+        response = requests.get(url)
+        if not response.ok:
+            return
+        self._data[url] = {
+            'text': response.text,
+            'type': response.headers.get('Content-Type')
+        }
 
     def preprocess(self) -> None:
         if self._preprocess is None:
@@ -66,6 +83,9 @@ class WebsiteSource:
         for thread in threads:
             thread.join()
 
+    def embed(self) -> None:
+        pass
+
     @property
     def preprocess_handler(self) -> typing.Callable:
         return self._preprocess
@@ -86,11 +106,4 @@ class WebsiteSource:
         with open('data.json', 'w') as f:
             json.dump(self._data, f, indent=4)
 
-    def _scrape(self, url: str) -> None:
-        response = requests.get(url)
-        if not response.ok:
-            return
-        self._data[url] = {
-            'text': response.text,
-            'type': response.headers.get('Content-Type')
-        }
+

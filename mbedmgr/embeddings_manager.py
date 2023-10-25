@@ -11,6 +11,15 @@ class EmbeddingsManager:
         self._website_sources[source_id] = website_source
         return website_source
 
+    def generate(self) -> None:
+        for source_id in self._website_sources:
+            source = self._website_sources[source_id]
+            source.scrape()
+            source.preprocess()
+            source.segment()
+            source.embed()
+
+
         # self._sitemaps = []
     # def add_sitemap(self, url):
     #     self._sitemaps.append(url)
