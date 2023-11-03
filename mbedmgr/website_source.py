@@ -17,12 +17,9 @@ class WebsiteSource:
 
     def __init__(self):
         self._data = {}
-
-    def _preprocess(self) -> None:
-        pass
-
-    def _segment(self) -> None:
-        pass
+        self._preprocess = None
+        self._segment = None
+        self._embed = None
 
     @property
     def data(self) -> typing.Dict[str, WebpageData]:
@@ -84,7 +81,18 @@ class WebsiteSource:
             thread.join()
 
     def embed(self) -> None:
-        pass
+        if self._embed is None:
+            print('embed() has no effect because a handler was not set.')
+            return
+        threads = []
+        for url in self._data:
+            thread_id = str(uuid.uuid4())
+            # TODO: It's not necessary to give them access to the whole data object.
+            thread = threading.Thread(target=self._embed, name=thread_id, args=(url,self._data,))
+            threads.append(thread)
+            thread.start()
+        for thread in threads:
+            thread.join()
 
     @property
     def preprocess_handler(self) -> typing.Callable:
@@ -102,8 +110,14 @@ class WebsiteSource:
     def segment_handler(self, handler: typing.Callable) -> None:
         self._segment = handler
 
+    @property
+    def embed_handler(self) -> typing.Callable:
+        return self._embed
+
+    @embed_handler.setter
+    def embed_handler(self, handler: typing.Callable) -> None:
+        self._embed = handler
+
     def save(self) -> None:
         with open('data.json', 'w') as f:
             json.dump(self._data, f, indent=4)
-
-
