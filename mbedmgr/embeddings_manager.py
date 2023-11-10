@@ -1,35 +1,32 @@
 import sys
 
 from .website_source import WebsiteSource
+from .github_source import GithubSource
 
 class EmbeddingsManager:
     def __init__(self):
         self._website_sources = {}
+        self._github_sources = {}
 
     def add_website_source(self, source_id: str = None) -> WebsiteSource:
         website_source = WebsiteSource()
         self._website_sources[source_id] = website_source
         return website_source
 
+    def add_github_source(self, owner, repo, tree) -> GithubSource:
+        github_source = GithubSource(owner, repo, tree)
+        source_id = f'{owner}_{repo}_{tree}'
+        self._github_sources[source_id] = github_source
+        return github_source
+
     def generate(self) -> None:
         for source_id in self._website_sources:
             source = self._website_sources[source_id]
+            print('scraping...')
             source.scrape()
+            print('preprocessing...')
             source.preprocess()
+            print('segmenting...')
             source.segment()
+            print('embedding...')
             source.embed()
-
-
-        # self._sitemaps = []
-    # def add_sitemap(self, url):
-    #     self._sitemaps.append(url)
-    # def generate_embeddings(self):
-    #     pass
-    # def scrape_sitemap(self, sitemap_url):
-    #     scraper = SitemapScraper(sitemap_url)
-    #     urls = scraper.scrape()
-    #     return urls
-    # def scrape_urls(self, urls):
-    #     scraper = UrlScraper()
-    #     scraper.scrape_urls(urls)
-    #     return scraper.data
