@@ -15,16 +15,28 @@ class WebsiteSource:
         self._preprocess = self._default_preprocess_handler
         self._segment = False
         self._embed = False
+        self._sitemap = None
 
-    def set_pages_from_sitemap(self, sitemap_url):
+    @property
+    def sitemap(self):
+        return self._sitemap
+
+    @sitemap.setter
+    def sitemap(self, sitemap_url):
+        self._sitemap = sitemap_url
         response = requests.get(sitemap_url)
         root = lxml.etree.fromstring(response.content)
         namespaces = {'sitemap': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
         urls = [loc.text for loc in root.xpath('//sitemap:loc', namespaces=namespaces)]
         for url in urls:
             self._pages[url] = {}
-    
-    def set_pages(self, urls):
+
+    @property
+    def pages(self):
+        return self._pages
+
+    @pages.setter
+    def pages(self, urls):
         for url in urls:
             self._pages[url] = {}
 
@@ -45,7 +57,9 @@ class WebsiteSource:
     def scrape(self):
         threads = []
         for url in self._pages:
-            thread = threading.Thread(target=self._scrape, name=url, args=(url,self,))
+            data = self._pages[url]
+            # TODO it's ok to pass mgr here, the buganizer was a trap
+            thread = threading.Thread(target=self._scrape, name=url, args=(url,data,))
             threads.append(thread)
             thread.start()
         for thread in threads:
@@ -79,7 +93,9 @@ class WebsiteSource:
             return
         threads = []
         for url in self._pages:
-            thread = threading.Thread(target=self._preprocess, name=url, args=(url,self,))
+            data = self._pages[url]
+            # TODO it's ok to pass mgr here, the buganizer was a trap
+            thread = threading.Thread(target=self._preprocess, name=url, args=(url,data,))
             threads.append(thread)
             thread.start()
         for thread in threads:
