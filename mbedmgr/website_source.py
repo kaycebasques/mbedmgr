@@ -5,13 +5,16 @@ import requests
 import bs4
 import lxml
 
+# TODO: Get the API naming consistent. E.g. set_pages versus page_handler (no verb in the setter)
+
 class WebsiteSource:
 
     def __init__(self):
         self._pages = {}
+        self._scrape = self._default_scrape_handler
         self._preprocess = self._default_preprocess_handler
-        self._segment = None
-        self._embed = None
+        self._segment = False
+        self._embed = False
 
     def set_pages_from_sitemap(self, sitemap_url):
         response = requests.get(sitemap_url)
@@ -25,22 +28,28 @@ class WebsiteSource:
         for url in urls:
             self._pages[url] = {}
 
+    @property
+    def scrape_handler(self):
+        return self._scrape
+
+    @scrape_handler.setter
+    def scrape_handler(self, handler):
+        self._scrape = handler
+
+    def _default_scrape_handler(self, url, mgr):
+        response = requests.get(url)
+        if not response.ok:
+            return
+        mgr.set_page_text(url, response.text)
+
     def scrape(self):
         threads = []
         for url in self._pages:
-            thread = threading.Thread(target=self._scrape, name=url, args=(url,))
+            thread = threading.Thread(target=self._scrape, name=url, args=(url,self,))
             threads.append(thread)
             thread.start()
         for thread in threads:
             thread.join()
-
-    def _scrape(self, url):
-        response = requests.get(url)
-        if not response.ok:
-            return
-        self._pages[url] = {
-            'text': response.text
-        }
 
     def get_page_text(self, url):
         return self._pages[url]['text']
@@ -63,7 +72,7 @@ class WebsiteSource:
         for tag_name in ['script', 'style', 'link']:
             for useless_tag in body.find_all(tag_name):
                 useless_tag.decompose()
-        self.set_page_text(url, str(body))
+        mgr.set_page_text(url, str(body))
 
     def preprocess(self):
         if self._preprocess is False:
@@ -85,7 +94,6 @@ class WebsiteSource:
         self._segment = handler
 
     def segment(self):
-        print(json.dumps(self._pages, indent=4))
         if self._segment is False:
             return
         threads = []

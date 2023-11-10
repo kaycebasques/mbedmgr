@@ -22,19 +22,12 @@ class EmbeddingsManager:
     def generate(self) -> None:
         for source_id in self._website_sources:
             source = self._website_sources[source_id]
-            print(f'{source_id}.scrape()')
             source.scrape()
-            print(f'{source_id}.preprocess()')
             source.preprocess()
-            print(f'{source_id}.segment()')
             source.segment()
-            print(f'{source_id}.embed()')
             source.embed()
         for source_id in self._github_sources:
             source = self._github_sources[source_id]
-            print(f'{source_id}.find()')
             source.find()
-            print(f'{source_id}.scrape()')
             source.scrape()
-            print(f'{source_id}.embed()')
             source.embed()
