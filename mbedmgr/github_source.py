@@ -15,6 +15,7 @@ class GithubSource:
         self._include = []
         self._paths = []
         self._data = {}
+        self._embed = None
 
     @property
     def include(self):
@@ -57,7 +58,6 @@ class GithubSource:
             thread.start()
         for thread in threads:
             thread.join()
-        print(self._data)
 
     def _scrape(self, path):
         url = f'https://raw.githubusercontent.com/{self._owner}/{self._repo}/{self._tree}/{path}'
@@ -66,10 +66,21 @@ class GithubSource:
             return
         self._data[path] = str(response.text)
 
-    # @property
-    # def embed_handler(self) -> typing.Callable:
-    #     return self._embed
+    def embed(self):
+        threads = []
+        for path in self._data:
+            url = f'https://raw.githubusercontent.com/{self._owner}/{self._repo}/{self._tree}/{path}'
+            content = self._data[path]
+            thread = threading.Thread(target=self._embed, name=path, args=(url,content,))
+            threads.append(thread)
+            thread.start()
+        for thread in threads:
+            thread.join()
 
-    # @embed_handler.setter
-    # def embed_handler(self, handler: typing.Callable) -> None:
-    #     self._embed = handler
+    @property
+    def embed_handler(self):
+        return self._embed
+
+    @embed_handler.setter
+    def embed_handler(self, handler):
+        self._embed = handler
