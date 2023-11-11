@@ -21,6 +21,9 @@ class GithubSource(BaseSource):
     def get_tree_url(self, path=None):
         return f'https://api.github.com/repos/{self._owner}/{self._repo}/git/trees/{self._tree}?recursive=1'
 
+    def get_path_url(self, path):
+        return f'https://raw.githubusercontent.com/{self._owner}/{self._repo}/{self._tree}/{path}'
+
     def _find(self):
         url = self.get_tree_url()
         response = requests.get(url)
@@ -36,15 +39,12 @@ class GithubSource(BaseSource):
                 if fnmatch.fnmatch(path, pattern):
                     exclude = True
             if include and not exclude:
-                self.set_text(path, None)
+                path_url = self.get_path_url(path)
+                self.set_text(path_url, None)
 
-    def get_path_url(self, path):
-        return f'https://raw.githubusercontent.com/{self._owner}/{self._repo}/{self._tree}/{path}'
-
-    def _scrape(self, mgr, path):
+    def _scrape(self, mgr, url):
         unused = mgr
-        url = self.get_path_url(path)
         response = requests.get(url)
         if not response.ok:
             return
-        self.set_text(path, str(response.text))
+        self.set_text(url, str(response.text))
