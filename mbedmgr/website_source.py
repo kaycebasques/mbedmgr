@@ -103,8 +103,9 @@ class WebsiteSource:
         threads = []
         segments = self.get_segments()
         for url in segments:
+            checksums = self._mbedmgr.get_checksums()
             text = segments[url]
-            thread = threading.Thread(target=self._embed, name=url, args=(url, text,))
+            thread = threading.Thread(target=self._embed, name=url, args=(url, text, checksums,))
             threads.append(thread)
             thread.start()
         for thread in threads:

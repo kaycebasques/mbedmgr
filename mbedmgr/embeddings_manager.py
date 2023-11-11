@@ -8,6 +8,12 @@ class EmbeddingsManager:
         self._website_sources = {}
         self._github_sources = {}
 
+    def set_checksums(self, checksums):
+        self._checksums = checksums
+
+    def get_checksums(self):
+        return self._checksums
+
     def add_website_source(self, source_id: str = None) -> WebsiteSource:
         website_source = WebsiteSource(self)
         self._website_sources[source_id] = website_source
