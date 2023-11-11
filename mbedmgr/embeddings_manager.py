@@ -4,11 +4,9 @@ from .website_source import WebsiteSource
 from .github_source import GithubSource
 
 class EmbeddingsManager:
-    def __init__(self):
+    def __init__(self, checksums=None):
         self._website_sources = {}
         self._github_sources = {}
-
-    def set_checksums(self, checksums):
         self._checksums = checksums
 
     def get_checksums(self):
@@ -27,6 +25,7 @@ class EmbeddingsManager:
         return github_source
 
     def generate(self) -> None:
+        # TODO: Can probably merge everything under a single sources var
         for source_id in self._website_sources:
             source = self._website_sources[source_id]
             source.scrape()
@@ -35,6 +34,5 @@ class EmbeddingsManager:
             source.embed()
         for source_id in self._github_sources:
             source = self._github_sources[source_id]
-            source.find()
             source.scrape()
             source.embed()
