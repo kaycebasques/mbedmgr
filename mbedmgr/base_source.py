@@ -10,17 +10,13 @@ class BaseSource:
     def __init__(self, mbedmgr, checksums=None):
         self._mbedmgr = mbedmgr
         self._data = {}
-        self._segments = {}
+        self._segments = None
         self._preprocess = None
         self._segment = None
         self._embed = None
 
     def get_data(self):
         return self._data
-
-    def set_data(self, identifiers):
-        for identifier in identifiers:
-            self._data[identifier] = {}
 
     def get_text(self, identifier):
         return self._data[identifier]
@@ -92,7 +88,8 @@ class BaseSource:
         if self._embed is None:
             return
         threads = []
-        data = self._data if self._segments is None else self._segments
+        segments = self.get_segments()
+        data = self.get_data() if segments is None else segments
         mgr = self
         for identifier in data:
             checksums = self._mbedmgr.get_checksums()

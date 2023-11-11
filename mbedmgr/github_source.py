@@ -42,12 +42,9 @@ class GithubSource(BaseSource):
         return f'https://raw.githubusercontent.com/{self._owner}/{self._repo}/{self._tree}/{path}'
 
     def _scrape(self, mgr, path):
-        print('in correct method')
         unused = mgr
         url = self.get_path_url(path)
-        print(url)
         response = requests.get(url)
         if not response.ok:
-            print('not ok')
             return
         self.set_text(path, str(response.text))
