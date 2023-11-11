@@ -27,12 +27,12 @@ class BaseSource:
     def set_scrape_handler(self, handler):
         self._scrape = handler
 
-    def _scrape(self, identifier, mgr):
+    def _scrape(self, mgr, identifier):
         unused = mgr
         response = requests.get(identifier)
         if not response.ok:
             return
-        self.set_text(identifier, response.text)
+        mgr.set_text(identifier, response.text)
 
     def scrape(self):
         threads = []
@@ -64,6 +64,8 @@ class BaseSource:
         return self._segments
 
     def set_segment(self, identifier, text):
+        if self._segments is None:
+            self._segments = {}
         self._segments[identifier] = text
 
     def set_segment_handler(self, handler):
