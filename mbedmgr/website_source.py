@@ -7,7 +7,8 @@ import lxml
 
 class WebsiteSource:
 
-    def __init__(self):
+    def __init__(self, mbedmgr):
+        self._mbedmgr = mbedmgr
         self._pages = {}
         self._segments = {}
         self._preprocess = None

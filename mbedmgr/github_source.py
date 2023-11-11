@@ -7,7 +7,8 @@ import requests
 
 class GithubSource:
 
-    def __init__(self, owner, repo, tree):
+    def __init__(self, mbedmgr, owner, repo, tree):
+        self._mbedmgr = mbedmgr
         self._owner = owner
         self._repo = repo
         self._tree = tree

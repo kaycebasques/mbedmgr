@@ -9,12 +9,12 @@ class EmbeddingsManager:
         self._github_sources = {}
 
     def add_website_source(self, source_id: str = None) -> WebsiteSource:
-        website_source = WebsiteSource()
+        website_source = WebsiteSource(self)
         self._website_sources[source_id] = website_source
         return website_source
 
     def add_github_source(self, owner, repo, tree) -> GithubSource:
-        github_source = GithubSource(owner, repo, tree)
+        github_source = GithubSource(self, owner, repo, tree)
         source_id = f'{owner}_{repo}_{tree}'
         self._github_sources[source_id] = github_source
         return github_source
